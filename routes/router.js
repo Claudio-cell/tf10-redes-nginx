@@ -1,3 +1,4 @@
+import courseRouter from './apis/courseRouter.js';
 import { Router } from 'express';
 import express from 'express';
 import path from 'path';

@@ -1,17 +1,37 @@
-import postgres from '../../../database/connections/postgres.js';
+const CourseModel = require('../../Models/CourseModel');
 
-export default async function DeleteAddressController(request, response) {
-    try {
-        const { id } = request.params;
-        const result = await postgres.query('DELETE FROM addresses WHERE id = $1 RETURNING *', [id]);
+class DeleteCourseController {
 
-        if (result.rows.length === 0) {
-            return response.status(404).json({ error: 'Address not found' });
+    async handle(req, res) {
+
+        try {
+
+            const { id } = req.params;
+
+            const course = await CourseModel.findByPk(id);
+
+            if (!course) {
+                return res.status(404).json({
+                    message: 'Curso não encontrado'
+                });
+            }
+
+            await course.destroy();
+
+            return res.json({
+                message: 'Curso removido'
+            });
+
+        } catch (error) {
+
+            return res.status(500).json({
+                error: error.message
+            });
+
         }
 
-        return response.status(204).send();
-    } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: 'Internal server error' });
     }
+
 }
+
+module.exports = new DeleteCourseController();

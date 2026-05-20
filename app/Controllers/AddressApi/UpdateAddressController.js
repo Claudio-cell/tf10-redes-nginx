@@ -1,26 +1,35 @@
-import postgres from '../../../database/connections/postgres.js';
+const CourseModel = require('../../Models/CourseModel');
 
-export default async function UpdateAddressController(request, response) {
-    try {
-        const { id } = request.params;
-        const { name, district, city } = request.body;
+class UpdateCourseController {
 
-        if (!name || !district || !city) {
-            return response.status(400).json({ error: 'Name, district and city are required' });
+    async handle(req, res) {
+
+        try {
+
+            const { id } = req.params;
+
+            const course = await CourseModel.findByPk(id);
+
+            if (!course) {
+                return res.status(404).json({
+                    message: 'Curso não encontrado'
+                });
+            }
+
+            await course.update(req.body);
+
+            return res.json(course);
+
+        } catch (error) {
+
+            return res.status(500).json({
+                error: error.message
+            });
+
         }
 
-        const result = await postgres.query(
-            'UPDATE addresses SET name = $1, district = $2, city = $3 WHERE id = $4 RETURNING *',
-            [name, district, city, id]
-        );
-
-        if (result.rows.length === 0) {
-            return response.status(404).json({ error: 'Address not found' });
-        }
-
-        return response.json(result.rows[0]);
-    } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: 'Internal server error' });
     }
+
 }
+
+module.exports = new UpdateCourseController();

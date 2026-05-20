@@ -1,32 +1,27 @@
-import postgres from '../../../database/connections/postgres.js';
+const CourseModel = require('../../Models/CourseModel');
 
-export default async function CreateAddressController(request, response) {
-    try {
-        const { name, district, city } = request.body;
-        const error = [];
+class CreateCourseController {
 
-        if (!name) {
-            error.push('name obrigatório!');
+    async handle(req, res) {
+
+        try {
+
+            const data = req.body;
+
+            const course = await CourseModel.create(data);
+
+            return res.status(201).json(course);
+
+        } catch (error) {
+
+            return res.status(500).json({
+                error: error.message
+            });
+
         }
-        if (!district) {
-            error.push('district obrigatório!');
-        }
-        if (!city) {
-            error.push('city obrigatório!');
-        }
 
-        if (error.length > 0) {
-            return response.status(400).json({ error });
-        }
-
-        const result = await postgres.query(
-            'INSERT INTO addresses (name, district, city) VALUES ($1, $2, $3) RETURNING *',
-            [name, district, city]
-        );
-
-        return response.status(201).json(result.rows[0]);
-    } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: 'Internal server error' });
     }
+
 }
+
+module.exports = new CreateCourseController();
